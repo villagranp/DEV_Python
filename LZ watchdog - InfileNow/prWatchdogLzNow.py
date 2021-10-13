@@ -5,8 +5,10 @@ import re
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-path = r"C:\Users\pablo.villagran\Documents\Listener"
-pathExit = r"C:\Users\pablo.villagran\Documents\Salida\\"
+import constants
+
+path = constants.PATH
+pathExit = constants.PATHEXIT
 go_recursively = True
 
 #se setean los patrones para validaciones
