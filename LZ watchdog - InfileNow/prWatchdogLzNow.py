@@ -1,38 +1,54 @@
 import time
+import shutil
+import psycopg2
+import re
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+path = r"C:\Users\pablo.villagran\Documents\Listener"
+pathExit = r"C:\Users\pablo.villagran\Documents\Salida\\"
+go_recursively = True
+
 #se setean los patrones para validaciones
 if __name__ == "__main__":
-    patterns = ["*"]
+    patterns = ["*RESPUESTA.txt"]
     ignore_patterns = None
     ignore_directories = False
     case_sensitive = True
     my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
-#Definicion de los metodos de cada una de las acciones.
-def on_created(event):
-    print(f"hey, {event.src_path} has been created!")
-
-def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
-
 def on_modified(event):
-    print(f"hey buddy, {event.src_path} has been modified")
-
-def on_moved(event):
-    print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
+    if (event.is_directory == True):
+        return False;
+    print(f"Warning: {event.src_path} has been modified")
+    pathPartes = event.src_path.split('\\')
+    file = pathPartes[-1]
+    brotenFile = re.search(r"^(FACT|NCRE)_(BRO|TEN)+", file)
+    if brotenFile:
+        shutil.copy(event.src_path, pathExit+file)
+        saveChangeLog('Archivo trasladado correctamente.', file, event.src_path, pathExit)
+    
+def saveChangeLog(changeLog, filename, source, destiny):
+    conn = psycopg2.connect(
+            host="172.16.23.153",
+            database="dbliztex1",
+            user="liztex",
+            password="golosin")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO prChangeLogNowInfile (changelog, filename, source, destiny) VALUES(%s, %s, %s, %s)", 
+                    (changeLog, filename, source, destiny ))
+    conn.commit() 
+    cursor.close()
+    conn.close()
+    
 
 #se define que metodo ejecutara cada uno de los eventos
 #my_event_handler.on_method = metodo_a_ejecutar
-my_event_handler.on_created =  on_created
-my_event_handler.on_deleted =  on_deleted
 my_event_handler.on_modified = on_modified
-my_event_handler.on_moved =    on_moved
+
 
 #se define sobre que path se ejecutara el watchdog
-path = r"C:\Users\pablo.villagran\Documents\Listener"
-go_recursively = True
+
 my_observer = Observer()
 my_observer.schedule(my_event_handler, path, recursive=go_recursively)
 
