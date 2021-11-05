@@ -1,0 +1,1 @@
+pip install flask flask_restful flask_sqlalchemy flask_migrate flask_marshmallow marshmallow-sqlalchemy psycopg2
