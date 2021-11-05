@@ -32,10 +32,10 @@ def on_modified(event):
     
 def saveChangeLog(changeLog, filename, source, destiny):
     conn = psycopg2.connect(
-            host="172.16.23.153",
-            database="dbliztex1",
-            user="liztex",
-            password="golosin")
+            host=constants.DBHOST,
+            database=constants.DBNAME,
+            user=constants.DBUSER,
+            password=constants.DBPASS)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO prChangeLogNowInfile (changelog, filename, source, destiny) VALUES(%s, %s, %s, %s)", 
                     (changeLog, filename, source, destiny ))
