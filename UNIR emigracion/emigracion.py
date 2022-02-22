@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('emigracionCSV.csv')
+df = pd.read_csv('UNIR emigracion/RemigracionCSV.csv')
 dic= {'Enero': 1 ,
       'Febrero': 2 ,
       'Marzo': 3 ,
