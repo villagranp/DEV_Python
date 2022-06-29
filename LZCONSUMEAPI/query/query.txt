@@ -1,0 +1,159 @@
+SELECT 
+    a~werks as centro,
+    b~EKGRP as grupo_compras,
+    a~banfn as no_solicitud,
+    d~loekz as indicador_borrado_S,
+    d~badat as fecha_solicitud,
+    d~frgdt as fecha_liberacion_solicitud,
+    d~ERDAT as fecha_modificacion,
+    d~lfdat as fecha_entrega,
+    case 
+        when cdhdrxxxx~username is not null   
+            then cdhdrxxxx~username 
+        when cdhdrxxx~username is not null   
+            then cdhdrxxx~username 
+        when cdhdrxx~username is not null   
+            then cdhdrxx~username 
+        when cdhdrx~username is not null   
+            then cdhdrx~username
+       end  as Liberador,
+    b~BSART as clase_pedido,
+    a~loekz as indicador_borrado_DC,
+    b~ernam as usuario_pedido,
+    usr~name_last as apellido_usuario,
+    a~ebeln as no_pedido_compras_completado,
+    b~aedat as fecha_pedido, 
+    a~matkl as grupo_articulos,
+    grp~eknam as denominacion_grpcomp,
+    a~matnr as material, 
+    a~txz01 as texto_breve,
+    a~menge as cantidad_pedido,
+    a~netwr as valor_pedido,
+    b~waers as moneda_pedido,
+    T023T~wgbez as denominacion_articulos,
+    b~procstat as status_tratamiento_doc,
+    stat_ped~ddtext as status_tratamiento_doc_text,
+    b~frgsx as Estrategia_liberacion,
+    b~frgke as Indicador_liberacion,
+    ind_lib~frget as  Descripcion,
+    cdhdr2~udate as fecha_rechazo,
+    cdhdr2~utime as hora_rechazo,
+    cdhdr2~username as usuario_rechazo,
+    usr_rechazo~name_last as apellido_rechazo,
+    max( cdhdr3~udate ) as ultimo_movimiento,
+    b~procstat as Estado_liberacion,
+    stat_ped~ddtext as denominacion_estado_liberacion,
+    max( cdhdr4~udate ) as fecha_activacion_estrategia,
+    max( cdhdr5~udate ) as fecha_Liberacion,
+    
+    sum( distinct anticipo~DMBTR )   as total_anticipo_ML,
+    sum( distinct anticipo~WRBTR )   as total_anticipo,
+    anticipo~waers as moneda,
+    max( anticipo~budat ) as fecha_ultimo_anticipo, 
+    a~ELIKZ as fecha_final,
+    """recepcion~cpudt as fecha_recepcion_mercancia,
+    a~ebelp as posicion,
+    """recepcion~belnr as no_documento_EM,
+    """recepcion~menge * CASE when recepcion~bwart = '102' then -1 else 1 end as cantidad_entrada,
+    """recepcion~bwart as clase_movimiento,
+    
+    d~zzfnece as fecha_necesidad,
+    cdhdrx~username as N1_usuario,
+    cdhdrxx~username as N2_usuario,
+    cdhdrxxx~username as N3_usuario,
+    cdhdrxxxx~username as N4_usuario,
+    cdhdrx~udate as N1_fechalib,
+    cdhdrxx~udate as N2_fechalib,
+    cdhdrxxx~udate as N3_fechalib,
+    cdhdrxxxx~udate as N4_fechalib,
+    case when cdhdrx~udate is not null then 'X' else ' ' end  as fecha_liberacion_n1,
+    case when cdhdrxx~udate is not null then 'X' else ' ' end  as fecha_liberacion_n2,
+    case when cdhdrxxx~udate is not null then 'X' else ' ' end  as fecha_liberacion_n3,
+    case when cdhdrxxxx~udate is not null then 'X' else ' ' end  as fecha_liberacion_n4,
+    c~slfdt as fecha_entrega_Estadistica,
+    c~eindt as fecha_entrega_posicion,
+    
+    
+    b~ernam,
+    b~frgzu,  
+    a~bnfpo
+    
+    
+    
+FROM EKPO AS a
+JOIN EKKO AS b ON ( a~ebeln = b~ebeln )
+JOIN EKET AS c ON ( a~ebeln = c~ebeln AND a~ebelp = c~ebelp )
+JOIN EBAN AS d ON ( a~BANFN = d~BANFN and a~BNFPO = d~BNFPO )
+JOIN user_addrp AS usr ON ( usr~bname = b~ernam )
+JOIN t024 AS grp ON ( grp~ekgrp = b~ekgrp )
+JOIN DD07V AS stat_ped ON ( stat_ped~domname = 'MEPROCSTATE' AND stat_ped~ddlanguage = 'S' 
+                                AND stat_ped~domvalue_l = b~procstat )
+JOIN t16fe as ind_lib ON ( ind_lib~frgke = b~frgke and ind_lib~spras = 'S' )
+LEFT JOIN EKBE ON ( EKBE~ebeln = b~ebeln )
+LEFT JOIN T023T ON ( a~matkl = T023T~matkl and t023t~spras = 'S' )
+
+LEFT JOIN cdpos as cdposx ON ( cdposx~objectclas = 'EINKBELEG' AND b~ebeln = cdposx~objectid 
+                                AND cdposx~fname = 'FRGZU' AND cdposx~value_new = 'X' AND cdposx~value_old = '' )
+LEFT JOIN cdhdr as cdhdrx ON ( cdhdrx~objectclas = cdposx~objectclas  AND cdhdrx~objectid = cdposx~objectid  
+                                AND cdhdrx~changenr = cdposx~changenr AND ( cdhdrx~tcode in ( 'ME28' , 'ME29N' ) ) )
+                        
+LEFT JOIN cdpos as cdposxx ON ( cdposxx~objectclas = 'EINKBELEG' AND b~ebeln = cdposxx~objectid 
+                                AND cdposxx~fname = 'FRGZU' AND cdposxx~value_new = 'XX' AND cdposxx~value_old = 'X'  )
+LEFT JOIN cdhdr as cdhdrxx ON ( cdhdrxx~objectclas = cdposxx~objectclas  AND cdhdrxx~objectid = cdposxx~objectid  
+                                AND cdhdrxx~changenr = cdposxx~changenr AND ( cdhdrxx~tcode in ( 'ME28' , 'ME29N' ) ) )
+
+LEFT JOIN cdpos as cdposxxx ON ( cdposxxx~objectclas = 'EINKBELEG' AND b~ebeln = cdposxxx~objectid 
+                                AND cdposxxx~fname = 'FRGZU' AND cdposxxx~value_new = 'XXX' AND cdposxxx~value_old = 'XX' )
+LEFT JOIN cdhdr as cdhdrxxx ON ( cdhdrxxx~objectclas = cdposxxx~objectclas  AND cdhdrxxx~objectid = cdposxxx~objectid  
+                                AND cdhdrxxx~changenr = cdposxxx~changenr AND ( cdhdrxxx~tcode in ( 'ME28' , 'ME29N' ) ) )
+
+LEFT JOIN cdpos as cdposxxxx ON ( cdposxxxx~objectclas = 'EINKBELEG' AND b~ebeln = cdposxxxx~objectid 
+                                AND cdposxxxx~fname = 'FRGZU' AND cdposxxxx~value_new = 'XXXX' AND cdposxxxx~value_old = 'XXX' )
+LEFT JOIN cdhdr as cdhdrxxxx ON ( cdhdrxxxx~objectclas = cdposxxxx~objectclas  AND cdhdrxxxx~objectid = cdposxxxx~objectid  
+                                AND cdhdrxxxx~changenr = cdposxxxx~changenr AND ( cdhdrxxxx~tcode in ( 'ME28' , 'ME29N' ) ) )
+                        
+LEFT JOIN cdpos as cdpos2 ON ( 'EINKBELEG' = cdpos2~objectclas AND cdpos2~objectid = b~ebeln 
+                                AND cdpos2~fname = 'PROCSTAT' AND cdpos2~value_new = '08' AND cdpos2~value_old = '03' )
+LEFT JOIN cdhdr as cdhdr2  ON ( cdhdr2~objectclas = cdpos2~objectclas AND cdhdr2~objectid = cdpos2~objectid 
+                                AND cdhdr2~changenr = cdpos2~changenr AND ( cdhdr2~tcode in ( 'ME28' , 'ME29N' ) ) )
+                                
+LEFT JOIN user_addrp AS usr_rechazo ON ( usr_rechazo~bname = cdhdr2~username )
+ 
+LEFT JOIN cdhdr as cdhdr3  ON ( cdhdr3~objectclas = 'EINKBELEG' AND cdhdr3~objectid = b~ebeln 
+                                AND ( cdhdr3~tcode NOT IN (  'ME28' , 'ME29N' ) ) )
+
+LEFT JOIN cdpos as cdpos4 ON ( 'EINKBELEG' = cdpos4~objectclas AND cdpos4~objectid = b~ebeln 
+                                AND cdpos4~fname = 'PROCSTAT' AND cdpos4~value_new = '03' )                                
+LEFT JOIN cdhdr as cdhdr4  ON ( cdhdr4~objectclas = cdpos4~objectclas AND cdhdr4~objectid = cdpos4~objectid 
+                                AND cdhdr4~changenr = cdpos4~changenr )
+
+LEFT JOIN cdpos as cdpos5 ON ( cdpos5~objectclas = 'EINKBELEG' AND b~ebeln = cdpos5~objectid 
+                        AND cdpos5~fname = 'FRGZU'  AND cdpos5~value_new like 'X%' )
+LEFT JOIN cdhdr as cdhdr5 ON ( cdhdr5~objectclas = cdpos5~objectclas  AND cdhdr5~objectid = cdpos5~objectid  
+                        AND cdhdr5~changenr = cdpos5~changenr AND ( cdhdr5~tcode in ( 'ME28' , 'ME29N' ) ) )
+                        
+LEFT JOIN EKBE as anticipo ON ( anticipo~ebeln = a~ebeln AND anticipo~ebelp = a~ebelp AND anticipo~vgabe = '4' )
+
+"""LEFT JOIN EKBE as recepcion ON ( recepcion~ebeln = a~ebeln AND recepcion~ebelp = a~ebelp AND recepcion~BEWTP = 'E' )
+
+
+WHERE a~ebeln in ( 5000001316 )
+"""WHERE b~AEDAT >= '20220101'
+GROUP BY
+    A~EBELP ,B~FRGZU ,A~ELIKZ ,C~EINDT ,C~SLFDT ,A~BNFPO ,a~werks ,b~EKGRP ,
+    a~banfn ,d~loekz ,d~badat ,d~frgdt ,d~ERDAT ,d~lfdat ,anticipo~waers ,
+    cdhdrx~username ,cdhdrxx~username ,cdhdrxxx~username ,cdhdrxxxx~username ,
+    b~BSART ,a~loekz ,b~ernam ,usr~name_last ,a~ebeln ,b~aedat ,a~matkl ,
+    grp~eknam ,a~matnr ,a~txz01 ,a~menge ,a~netwr ,b~waers ,T023T~wgbez ,
+    b~procstat ,stat_ped~ddtext ,b~frgsx ,b~frgke ,ind_lib~frget ,
+    cdhdr2~udate ,cdhdr2~utime ,cdhdr2~username ,usr_rechazo~name_last ,
+    cdhdrx~udate ,cdhdrxx~udate ,cdhdrxxx~udate ,cdhdrxxxx~udate ,d~zzfnece,
+    anticipo~vgabe
+    """,recepcion~cpudt,recepcion~belnr,
+    """recepcion~menge, recepcion~bwart 
+
+
+
+
+
+
